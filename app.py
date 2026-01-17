@@ -823,7 +823,8 @@ class FutbolTahminApp(ctk.CTk):
             
         except Exception as e:
             import traceback
-            self.after(0, lambda: self._show_error(f"Analiz hatasi: {e}\n{traceback.format_exc()}"))
+            error_msg = f"Analiz hatasi: {e}\n{traceback.format_exc()}"
+            self.after(0, lambda msg=error_msg: self._show_error(msg))
         
         finally:
             self.after(0, self._hide_progress)
@@ -962,7 +963,7 @@ class FutbolTahminApp(ctk.CTk):
         lines.append("+" + "=" * W + "+")
         lines.append("|" + " " * W + "|")
         lines.append("|" + "TABLO ACIKLAMALARI".center(W) + "|")
-        lines.append("|" + "-" * (W-2).center(W) + "|")
+        lines.append("|" + "-" * W + "|")
         lines.append("|" + " " * W + "|")
         lines.append("|  EV %       : Ev sahibi takimin kazanma olasiligi                                                   |")
         lines.append("|  BER %      : Beraberlik olasiligi                                                                  |")
@@ -979,9 +980,9 @@ class FutbolTahminApp(ctk.CTk):
         lines.append("|               Ornek: %70 kazanma x %65 gol tahmini = 45.5 banko skoru                               |")
         lines.append("|               Yuksek skor = Daha guvenli bahis                                                      |")
         lines.append("|" + " " * W + "|")
-        lines.append("|" + "-" * (W-2).center(W) + "|")
+        lines.append("|" + "-" * W + "|")
         lines.append("|" + "HESAPLAMA YONTEMI".center(W) + "|")
-        lines.append("|" + "-" * (W-2).center(W) + "|")
+        lines.append("|" + "-" * W + "|")
         lines.append("|" + " " * W + "|")
         lines.append("|  1. POISSON DAGILIMI    : Takimlarin son 5-10 mactaki gol ortalamalarindan beklenen gol hesabi      |")
         lines.append("|  2. DIXON-COLES         : Dusuk skorlu maclarda (0-0, 1-0, 1-1) korelasyon duzeltmesi               |")
