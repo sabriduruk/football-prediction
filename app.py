@@ -399,10 +399,30 @@ class FutbolTahminApp(ctk.CTk):
         self.filter_var = ctk.StringVar(value="Tumu")
         self.filter_dropdown = ctk.CTkOptionMenu(
             self.search_filter_frame,
-            values=["Tumu", "Kazanma >=70%", "Kazanma >=60%", "Guven >=60", "4+ Gol >=50%", "0-3 Gol >=70%"],
+            values=[
+                "Tumu",
+                "--- KAZANMA ---",
+                "Kazanma >=80%",
+                "Kazanma >=70%", 
+                "Kazanma >=60%",
+                "--- BERABERLIK ---",
+                "Beraberlik >=25%",
+                "Beraberlik >=30%",
+                "--- GOL ---",
+                "4+ Gol >=30%",
+                "4+ Gol >=25%",
+                "0-3 Gol >=80%",
+                "0-3 Gol >=75%",
+                "--- GUVEN ---",
+                "Guven >=70",
+                "Guven >=60",
+                "--- OZEL ---",
+                "Banko Adayi",
+                "Riskli Mac"
+            ],
             variable=self.filter_var,
             command=self.apply_filter,
-            width=140,
+            width=150,
             font=ctk.CTkFont(size=12)
         )
         self.filter_dropdown.grid(row=0, column=3)
@@ -474,48 +494,58 @@ class FutbolTahminApp(ctk.CTk):
    4. 14+ mac secilirse "En Garanti 10-14" butonu aktif olur
 
 +======================================================================================================+
-|                                      TAHMIN ALGORITMASI                                              |
+|                    TAHMIN ALGORITMASI - %100 VERI BAZLI SISTEM                                       |
 +======================================================================================================+
 
-   TAKIM GUCU FAKTORLERI (%45) - EN ONEMLI
+   FiveThirtyEight SPI metodolojisine dayali profesyonel tahmin sistemi.
+   Tum tahminler GERCEK MAC VERILERI'ne dayanir. Poisson/Monte Carlo veri degil, hesaplama aracidir.
+
+   SEZON PERFORMANSI (%40) - ANA VERI KAYNAGI
    ----------------------------------------------------------------------------------------------------
-   [%25] ELO RATING            : Satranctaki Elo sisteminden esinlenmis. Her takimin genel guc puani.
-                                  Lig kalitesi + sezon W-D-L performansi + gol farkindan hesaplanir.
-                                  Ornek: Premier League takimi 1650, Super Lig takimi 1450 baz puan.
-                                  ** Gercek veri bazli - tahminlerin ana kaynagi **
+   [%25] W-D-L KAYDI           : Takimin sezon boyu galibiyet-beraberlik-maglubiyet kaydi.
+                                  Toplam puan ve puan ortalamasi.
 
-   [%12] FORM TRENDI           : Son 5 mactaki performans degisimi. Son maclar daha agirlikli.
-                                  Yukseliste olan takim: +%15'e kadar bonus
-                                  Dususte olan takim: -%15'e kadar ceza
+   [%15] GOL FARKI             : Atilan gol - yenilen gol farki.
+                                  Pozitif = guclu hucum+savunma, negatif = zayif.
 
-   [% 8] EV/DEPLASMAN          : Takimin EVDEKI ve DEPLASMANDAKI ayri performanslari.
-                                  Ornek: Evde 2.0 gol atan, disarida 0.8 gol atan takim
-                                  Ev macinda guclu, deplasmanda zayif degerlendirmesi alir.
-
-   HESAPLAMA YONTEMI (%35)
+   SON MAC FORMU (%25) - GUNCEL DURUM
    ----------------------------------------------------------------------------------------------------
-   [%25] POISSON + DIXON-COLES : Takimlarin gol ortalamalarindan olasilik hesaplar.
-                                  Dixon-Coles dusuk skorlu maclari (0-0, 1-0) duzeltir.
-                                  ** Takimin gercek gol verilerini kullanir **
+   [%15] SON 5-10 MAC          : Son maclardaki W-D-L kaydi ve gol performansi.
+                                  En son maclar daha agirlikli degerlendirilir.
 
-   [%10] MONTE CARLO           : 5000 mac simulasyonu yaparak belirsizligi olcer.
-                                  Poisson sonuclarini gercekci varyansla destekler.
+   [%10] FORM TRENDI           : Yukseliste mi dususte mi? Son maclardaki degisim.
+                                  Ust uste galibiyetler = yukselis bonusu.
 
-   MAC OZEL FAKTORLER (%20)
+   EV/DEPLASMAN AYRIMI (%15)
    ----------------------------------------------------------------------------------------------------
-   [% 6] KAFA KAFAYA (H2H)     : Iki takimin son 5-10 karsilasmasindaki sonuclar.
-                                  Tarihsel ustunluk = kucuk avantaj (maks +/-%6)
+   [% 8] EVDEKI PERFORMANS     : Takimin SADECE ev maclarindaki istatistikleri.
+                                  Gol ortalamasi, yenilen gol, galibiyet orani.
 
-   [% 6] LIG EV AVANTAJI       : Her ligin kendine ozel ev sahibi avantaji.
-                                  Turkiye: %18 ev avantaji (taraftar etkisi yuksek)
-                                  Premier League: %10 ev avantaji (daha dengeli)
-                                  UEFA: %8 ev avantaji (tarafsiz ortam)
+   [% 7] DEPLASMAN PERFORMANSI : Takimin SADECE deplasman maclarindaki istatistikleri.
+                                  Bazi takimlar evde guclu, disarida zayif (veya tersi).
 
-   [% 5] KADRO GUCU            : Sakatlik/ceza durumunu performans dususunden tahmin eder.
-                                  Son maclarda ani dusus = muhtemelen kadro eksigi.
+   KAFA KAFAYA GECMIS (%10)
+   ----------------------------------------------------------------------------------------------------
+   [% 6] H2H SONUCLARI         : Iki takimin son 5-10 karsilasmasinin sonuclari.
+                                  Tarihsel ustunluk kucuk avantaj saglar.
 
-   [% 3] xG KALITESI           : Takimin sut kalitesi. Cok gol atan ama kazanamayan takim =
-                                  dusuk kalite sans, az sutla cok gol atan = yuksek kalite.
+   [% 4] H2H GOL FARKI         : Gecmis karsilasmalardaki gol farki.
+                                  Hep farkli skorlar = daha az guvenilir H2H.
+
+   LIG FAKTORLERI (%10)
+   ----------------------------------------------------------------------------------------------------
+   [% 6] LIG GUCU              : Premier League > La Liga > Bundesliga > Serie A > Super Lig
+                                  Guclu ligdeki orta takim, zayif ligdeki sampiyondan iyi olabilir.
+
+   [% 4] LIG EV AVANTAJI       : Her ligin kendine ozel ev avantaji.
+                                  Turkiye: %18 (taraftar), Premier League: %10 (dengeli)
+
+   ----------------------------------------------------------------------------------------------------
+   HESAPLAMA ARACLARI (Agirlik degil, veriyi isleme yontemi)
+   ----------------------------------------------------------------------------------------------------
+   * POISSON DAGILIMI  : Yukardaki verileri kullanarak her skor ihtimalini hesaplar (0-0, 1-0, 2-1...)
+   * DIXON-COLES       : Beraberlik olasiligini duzeltir (+%9, Poisson beraberlikleri eksik sayar)
+   * MONTE CARLO       : 10.000 mac simulasyonu ile belirsizlik olcer (varyans analizi)
 
 +======================================================================================================+
 |                                       TABLO SUTUNLARI                                                |
@@ -764,16 +794,47 @@ class FutbolTahminApp(ctk.CTk):
             ]
         
         # Diger filtreler
-        if filter_value == "Kazanma >=70%":
+        # Kazanma filtreleri
+        if filter_value == "Kazanma >=80%":
+            df = df[df['win_prob'] >= 80]
+        elif filter_value == "Kazanma >=70%":
             df = df[df['win_prob'] >= 70]
         elif filter_value == "Kazanma >=60%":
             df = df[df['win_prob'] >= 60]
+        
+        # Beraberlik filtreleri
+        elif filter_value == "Beraberlik >=25%":
+            df = df[df['draw_%'] >= 25]
+        elif filter_value == "Beraberlik >=30%":
+            df = df[df['draw_%'] >= 30]
+        
+        # Gol filtreleri
+        elif filter_value == "4+ Gol >=30%":
+            df = df[df['over_3.5_%'] >= 30]
+        elif filter_value == "4+ Gol >=25%":
+            df = df[df['over_3.5_%'] >= 25]
+        elif filter_value == "0-3 Gol >=80%":
+            df = df[df['under_3.5_%'] >= 80]
+        elif filter_value == "0-3 Gol >=75%":
+            df = df[df['under_3.5_%'] >= 75]
+        
+        # Guven filtreleri
+        elif filter_value == "Guven >=70":
+            df = df[df['confidence'] >= 70]
         elif filter_value == "Guven >=60":
             df = df[df['confidence'] >= 60]
-        elif filter_value == "4+ Gol >=50%":
-            df = df[df['over_3.5_%'] >= 50]
-        elif filter_value == "0-3 Gol >=70%":
-            df = df[df['under_3.5_%'] >= 70]
+        
+        # Ozel filtreler
+        elif filter_value == "Banko Adayi":
+            # Yuksek kazanma + yuksek guven + mantikli gol orani
+            df = df[(df['win_prob'] >= 70) & (df['confidence'] >= 60) & (df['under_3.5_%'] >= 65)]
+        elif filter_value == "Riskli Mac":
+            # Dusuk guven veya cok dengeli mac
+            df = df[(df['confidence'] < 50) | ((df['win_prob'] < 45) & (df['win_prob'] > 35))]
+        
+        # Separator satirlari icin bos birak
+        elif filter_value.startswith("---"):
+            pass  # Ayirici satir, filtreleme yapma
         
         if df.empty:
             self.result_text.delete("1.0", "end")
@@ -1023,23 +1084,22 @@ class FutbolTahminApp(ctk.CTk):
         lines.append("|               Yuksek skor = Daha guvenli bahis                                                      |")
         lines.append("|" + " " * W + "|")
         lines.append("|" + "-" * W + "|")
-        lines.append("|" + "TAHMIN ALGORITMASI VE AGIRLIKLAR (Veri Odakli)".center(W) + "|")
+        lines.append("|" + "%100 VERI BAZLI TAHMIN SISTEMI".center(W) + "|")
         lines.append("|" + "-" * W + "|")
         lines.append("|" + " " * W + "|")
-        lines.append("|  TAKIM GUCU FAKTORLERI (%45) - EN ONEMLI                                                           |")
-        lines.append("|    [%25] Elo Rating         - Genel takim gucu (lig kalitesi + sezon performansi)                  |")
-        lines.append("|    [%12] Form Trendi        - Son 5 mac performansi (son maclar agirlikli)                         |")
-        lines.append("|    [% 8] Ev/Deplasman       - Evdeki ve deplasmandaki ayri performanslar                           |")
+        lines.append("|  SEZON PERFORMANSI (%40)                                                                           |")
+        lines.append("|    [%25] W-D-L Kaydi        - Galibiyet-beraberlik-maglubiyet ve puan                              |")
+        lines.append("|    [%15] Gol Farki          - Atilan gol - yenilen gol                                             |")
         lines.append("|" + " " * W + "|")
-        lines.append("|  HESAPLAMA YONTEMI (%35)                                                                           |")
-        lines.append("|    [%25] Poisson+Dixon-Coles- Gol dagilimi + dusuk skor duzeltmesi                                 |")
-        lines.append("|    [%10] Monte Carlo        - 5000 simulasyon, belirsizlik analizi                                 |")
+        lines.append("|  SON MAC FORMU (%25)                                                                               |")
+        lines.append("|    [%15] Son 5-10 Mac       - Yakin gecmisteki sonuclar (son maclar agirlikli)                     |")
+        lines.append("|    [%10] Form Trendi        - Yukselis veya dusus trendi                                           |")
         lines.append("|" + " " * W + "|")
-        lines.append("|  MAC OZEL FAKTORLER (%20)                                                                          |")
-        lines.append("|    [% 6] Kafa Kafaya (H2H)  - Gecmis karsilasma sonuclari                                          |")
-        lines.append("|    [% 6] Lig Ev Avantaji    - Lige ozel ev sahibi avantaji                                         |")
-        lines.append("|    [% 5] Kadro Gucu         - Sakatlik/ceza durumu tahmini                                         |")
-        lines.append("|    [% 3] xG Kalitesi        - Sut kalitesi duzeltmesi                                              |")
+        lines.append("|  EV/DEPLASMAN (%15)         - Lokasyona ozel ayri performanslar                                    |")
+        lines.append("|  KAFA KAFAYA (%10)          - Gecmis karsilasma sonuclari ve gol farki                             |")
+        lines.append("|  LIG FAKTORLERI (%10)       - Lig gucu (PL>LaLiga>...) + lige ozel ev avantaji                     |")
+        lines.append("|" + " " * W + "|")
+        lines.append("|  HESAPLAMA ARACLARI: Poisson (gol olasiligi) + Dixon-Coles (+%9 ber.) + Monte Carlo (10K sim.)     |")
         lines.append("|" + " " * W + "|")
         lines.append("+" + "=" * W + "+")
         
