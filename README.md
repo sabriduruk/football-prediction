@@ -9,24 +9,6 @@ FiveThirtyEight SPI metodolojisine dayalı profesyonel futbol maç tahmin uygula
 - **Detaylı Analiz** - 1X2, gol olasılıkları, güven skoru
 - **Modern Arayüz** - CustomTkinter ile modern GUI
 
-## Kurulum
-
-### macOS
-
-1. Terminal'de çalıştır:
-```bash
-cd /Users/sabri/Desktop/futbol
-./Futbol\ Tahmin.command
-```
-
-### Windows
-
-**Seçenek 1: Hazır Kurulum Dosyası**
-- [Releases](../../releases) sayfasından `FutbolTahmin_Setup.exe` indir
-- Çift tıkla ve kurulumu tamamla
-
-**Seçenek 2: Kaynak Koddan**
-- `windows_build/README_WINDOWS.md` dosyasına bak
 
 ## Algoritma
 
