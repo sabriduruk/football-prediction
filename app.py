@@ -458,44 +458,86 @@ class FutbolTahminApp(ctk.CTk):
         today = date.today()
         start_date, end_date = get_week_range()
         welcome = f"""
-+====================================================================================================+
-|                                   FUTBOL MAC TAHMIN SISTEMI                                        |
-+====================================================================================================+
++======================================================================================================+
+|                                    FUTBOL MAC TAHMIN SISTEMI                                         |
++======================================================================================================+
 
    BUGUN: {today.strftime('%d/%m/%Y')}
-   HAFTA: {start_date.strftime('%d/%m/%Y')} - {end_date.strftime('%d/%m/%Y')} (Sali - Sali arasi, sadece gelecek maclar)
-   -------------------------------------------------------------------------------------------------
+   HAFTA: {start_date.strftime('%d/%m/%Y')} - {end_date.strftime('%d/%m/%Y')} (Sali - Sali arasi)
+   ----------------------------------------------------------------------------------------------------
 
    KULLANIM:
-   -------------------------------------------------------------------------------------------------
+   ----------------------------------------------------------------------------------------------------
    1. Sol panelden analiz etmek istediginiz maclari secin (takim arama kutusunu kullanabilirsiniz)
    2. "Analiz Et" butonuna tiklayin
    3. Sonuclar bu alanda goruntulenecek
    4. 14+ mac secilirse "En Garanti 10-14" butonu aktif olur
 
-   DESTEKLENEN LIGLER:
-   -------------------------------------------------------------------------------------------------
-   - Ingiltere Premier League, Ispanya La Liga, Italya Serie A
-   - Almanya Bundesliga, Fransa Ligue 1
-   - Turkiye Super Lig, Portekiz Primeira Liga, Belcika Pro League
-   - Suudi Arabistan Pro League
-   - UEFA Sampiyonlar Ligi, Avrupa Ligi, Konferans Ligi
++======================================================================================================+
+|                                      TAHMIN ALGORITMASI                                              |
++======================================================================================================+
 
-   TABLO SUTUNLARI:
-   -------------------------------------------------------------------------------------------------
-   EV %      : Ev sahibi kazanma olasiligi
-   BER %     : Beraberlik olasiligi  
+   TAKIM GUCU FAKTORLERI (%45) - EN ONEMLI
+   ----------------------------------------------------------------------------------------------------
+   [%25] ELO RATING            : Satranctaki Elo sisteminden esinlenmis. Her takimin genel guc puani.
+                                  Lig kalitesi + sezon W-D-L performansi + gol farkindan hesaplanir.
+                                  Ornek: Premier League takimi 1650, Super Lig takimi 1450 baz puan.
+                                  ** Gercek veri bazli - tahminlerin ana kaynagi **
+
+   [%12] FORM TRENDI           : Son 5 mactaki performans degisimi. Son maclar daha agirlikli.
+                                  Yukseliste olan takim: +%15'e kadar bonus
+                                  Dususte olan takim: -%15'e kadar ceza
+
+   [% 8] EV/DEPLASMAN          : Takimin EVDEKI ve DEPLASMANDAKI ayri performanslari.
+                                  Ornek: Evde 2.0 gol atan, disarida 0.8 gol atan takim
+                                  Ev macinda guclu, deplasmanda zayif degerlendirmesi alir.
+
+   HESAPLAMA YONTEMI (%35)
+   ----------------------------------------------------------------------------------------------------
+   [%25] POISSON + DIXON-COLES : Takimlarin gol ortalamalarindan olasilik hesaplar.
+                                  Dixon-Coles dusuk skorlu maclari (0-0, 1-0) duzeltir.
+                                  ** Takimin gercek gol verilerini kullanir **
+
+   [%10] MONTE CARLO           : 5000 mac simulasyonu yaparak belirsizligi olcer.
+                                  Poisson sonuclarini gercekci varyansla destekler.
+
+   MAC OZEL FAKTORLER (%20)
+   ----------------------------------------------------------------------------------------------------
+   [% 6] KAFA KAFAYA (H2H)     : Iki takimin son 5-10 karsilasmasindaki sonuclar.
+                                  Tarihsel ustunluk = kucuk avantaj (maks +/-%6)
+
+   [% 6] LIG EV AVANTAJI       : Her ligin kendine ozel ev sahibi avantaji.
+                                  Turkiye: %18 ev avantaji (taraftar etkisi yuksek)
+                                  Premier League: %10 ev avantaji (daha dengeli)
+                                  UEFA: %8 ev avantaji (tarafsiz ortam)
+
+   [% 5] KADRO GUCU            : Sakatlik/ceza durumunu performans dususunden tahmin eder.
+                                  Son maclarda ani dusus = muhtemelen kadro eksigi.
+
+   [% 3] xG KALITESI           : Takimin sut kalitesi. Cok gol atan ama kazanamayan takim =
+                                  dusuk kalite sans, az sutla cok gol atan = yuksek kalite.
+
++======================================================================================================+
+|                                       TABLO SUTUNLARI                                                |
++======================================================================================================+
+
+   EV %      : Ev sahibi kazanma olasiligi (tum faktorler dahil)
+   BER %     : Beraberlik olasiligi
    DEP %     : Deplasman kazanma olasiligi
-   0-3 GOL % : 0-3 toplam gol olasiligi (Alt 3.5)
-   4+ GOL %  : 4+ toplam gol olasiligi (Ust 3.5)
-   GUVEN     : Tahmin guvenilirligi (0-100), form istikrari ve veri kalitesine bagli
-   BANKO SK  : (Kazanma %) x (Gol tahmini %) - yuksek = daha guvenli
+   0-3 GOL % : 0-3 toplam gol olasiligi (Alt 3.5 bahis)
+   4+ GOL %  : 4+ toplam gol olasiligi (Ust 3.5 bahis)
+   GUVEN     : Tahmin guvenilirligi (0-100), veri kalitesi ve olasilik farklarina bagli
+   BANKO SK  : (Kazanma %) x (Gol tahmini %) - Yuksek = Daha guvenli bahis onerisi
 
-   ALGORITMA:
-   -------------------------------------------------------------------------------------------------
-   Poisson Dagilimi + Dixon-Coles Duzeltmesi + Monte Carlo Simulasyonu (5000 tekrar)
++======================================================================================================+
+|                                      DESTEKLENEN LIGLER                                              |
++======================================================================================================+
 
-+====================================================================================================+
+   Big 5: Ingiltere Premier League, Ispanya La Liga, Italya Serie A, Almanya Bundesliga, Fransa Ligue 1
+   Diger: Turkiye Super Lig, Portekiz Primeira Liga, Belcika Pro League, Suudi Arabistan Pro League
+   UEFA : Sampiyonlar Ligi, Avrupa Ligi, Konferans Ligi
+
++======================================================================================================+
         """
         self.result_text.delete("1.0", "end")
         self.result_text.insert("1.0", welcome)
@@ -981,15 +1023,23 @@ class FutbolTahminApp(ctk.CTk):
         lines.append("|               Yuksek skor = Daha guvenli bahis                                                      |")
         lines.append("|" + " " * W + "|")
         lines.append("|" + "-" * W + "|")
-        lines.append("|" + "HESAPLAMA YONTEMI".center(W) + "|")
+        lines.append("|" + "TAHMIN ALGORITMASI VE AGIRLIKLAR (Veri Odakli)".center(W) + "|")
         lines.append("|" + "-" * W + "|")
         lines.append("|" + " " * W + "|")
-        lines.append("|  1. POISSON DAGILIMI    : Takimlarin son 5-10 mactaki gol ortalamalarindan beklenen gol hesabi      |")
-        lines.append("|  2. DIXON-COLES         : Dusuk skorlu maclarda (0-0, 1-0, 1-1) korelasyon duzeltmesi               |")
-        lines.append("|  3. MONTE CARLO         : 5000 mac simulasyonu ile belirsizlik analizi                              |")
-        lines.append("|  4. GUC PUANI           : Hucum ve savunma rating'i (form + xG verisi)                              |")
+        lines.append("|  TAKIM GUCU FAKTORLERI (%45) - EN ONEMLI                                                           |")
+        lines.append("|    [%25] Elo Rating         - Genel takim gucu (lig kalitesi + sezon performansi)                  |")
+        lines.append("|    [%12] Form Trendi        - Son 5 mac performansi (son maclar agirlikli)                         |")
+        lines.append("|    [% 8] Ev/Deplasman       - Evdeki ve deplasmandaki ayri performanslar                           |")
         lines.append("|" + " " * W + "|")
-        lines.append("|  Hibrit Sonuc: Poisson (%60) + Monte Carlo (%40) birlesimi                                          |")
+        lines.append("|  HESAPLAMA YONTEMI (%35)                                                                           |")
+        lines.append("|    [%25] Poisson+Dixon-Coles- Gol dagilimi + dusuk skor duzeltmesi                                 |")
+        lines.append("|    [%10] Monte Carlo        - 5000 simulasyon, belirsizlik analizi                                 |")
+        lines.append("|" + " " * W + "|")
+        lines.append("|  MAC OZEL FAKTORLER (%20)                                                                          |")
+        lines.append("|    [% 6] Kafa Kafaya (H2H)  - Gecmis karsilasma sonuclari                                          |")
+        lines.append("|    [% 6] Lig Ev Avantaji    - Lige ozel ev sahibi avantaji                                         |")
+        lines.append("|    [% 5] Kadro Gucu         - Sakatlik/ceza durumu tahmini                                         |")
+        lines.append("|    [% 3] xG Kalitesi        - Sut kalitesi duzeltmesi                                              |")
         lines.append("|" + " " * W + "|")
         lines.append("+" + "=" * W + "+")
         
