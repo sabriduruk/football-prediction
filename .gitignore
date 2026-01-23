@@ -14,6 +14,13 @@ build/
 dist/
 *.spec
 
+# Windows build
+windows_build/dist/
+windows_build/build/
+windows_build/venv/
+windows_build/installer_output/
+*.exe
+
 # IDE
 .idea/
 .vscode/

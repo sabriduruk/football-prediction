@@ -1,30 +1,65 @@
-# Futbol Tahmin Sistemi
+# Futbol Tahmin
 
-Hibrit algoritma ile futbol mac tahmin uygulamasi.
+FiveThirtyEight SPI metodolojisine dayalı profesyonel futbol maç tahmin uygulaması.
 
-## Windows Kurulum
+## Özellikler
 
-1. **Python 3.11 veya 3.12** indirip kurun: https://www.python.org/downloads/
-   - ONEMLI: "Add Python to PATH" secenegini isaretleyin!
+- **%100 Veri Bazlı Tahmin** - Tüm tahminler gerçek maç verilerine dayanır
+- **12 Lig Desteği** - Premier League, La Liga, Serie A, Bundesliga, Ligue 1, Süper Lig ve daha fazlası
+- **Detaylı Analiz** - 1X2, gol olasılıkları, güven skoru
+- **Modern Arayüz** - CustomTkinter ile modern GUI
 
-2. Bu repoyu indirin (Code > Download ZIP) ve cikartin
+## Kurulum
 
-3. `install_windows.bat` dosyasina cift tiklayin
+### macOS
 
-4. Kurulum bitince masaustundeki **Futbol Tahmin** kisayoluna tiklayin
-
-## macOS Kurulum
-
+1. Terminal'de çalıştır:
 ```bash
-cd futbol
-python3 -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
-python app.py
+cd /Users/sabri/Desktop/futbol
+./Futbol\ Tahmin.command
 ```
 
-## Ozellikler
+### Windows
 
-- 12 lig destegi (Premier League, La Liga, Serie A, Bundesliga, Super Lig vs.)
-- Poisson + Dixon-Coles + Monte Carlo hibrit analizi
-- Modern arayuz (CustomTkinter)
+**Seçenek 1: Hazır Kurulum Dosyası**
+- [Releases](../../releases) sayfasından `FutbolTahmin_Setup.exe` indir
+- Çift tıkla ve kurulumu tamamla
+
+**Seçenek 2: Kaynak Koddan**
+- `windows_build/README_WINDOWS.md` dosyasına bak
+
+## Algoritma
+
+```
+%100 VERİ BAZLI SİSTEM
+├── Sezon Performansı (%40)
+│   ├── W-D-L Kaydı (%25)
+│   └── Gol Farkı (%15)
+├── Son Maç Formu (%25)
+│   ├── Son 5-10 Maç (%15)
+│   └── Form Trendi (%10)
+├── Ev/Deplasman (%15)
+├── Kafa Kafaya (%10)
+└── Lig Faktörleri (%10)
+
+Hesaplama Araçları: Poisson + Dixon-Coles + Monte Carlo
+```
+
+## Desteklenen Ligler
+
+- İngiltere Premier League
+- İspanya La Liga
+- İtalya Serie A
+- Almanya Bundesliga
+- Fransa Ligue 1
+- Türkiye Süper Lig
+- Portekiz Primeira Liga
+- Belçika Pro League
+- Suudi Arabistan Pro League
+- UEFA Şampiyonlar Ligi
+- UEFA Avrupa Ligi
+- UEFA Konferans Ligi
+
+## Lisans
+
+MIT License
