@@ -48,7 +48,7 @@ ESPN_LEAGUES = {
     'GER-Bundesliga': ('ger.1', 'Almanya Bundesliga'),
     'FRA-Ligue 1': ('fra.1', 'Fransa Ligue 1'),
     'POR-Primeira Liga': ('por.1', 'Portekiz Primeira Liga'),
-    'NED-Eredivisie': ('ned.1', 'Hollanda Eredivisie'),
+    'KSA-Pro League': ('ksa.1', 'Suudi Arabistan Pro League'),
 }
 
 TURKEY_TZ = pytz.timezone('Europe/Istanbul')
@@ -289,7 +289,7 @@ def fetch_espn_single(league_key: str, league_info: tuple, start_date: date, end
                 
                 # Takim istatistikleri (ESPN records'dan)
                 for team_name, record in [(home_team, home_record), (away_team, away_record)]:
-                    if team_name and record and team_name not in team_stats:
+                    if team_name and record:
                         try:
                             # "W-D-L" formatinda (ornek: "10-5-3")
                             summary = record.get('summary', '0-0-0')
@@ -302,11 +302,10 @@ def fetch_espn_single(league_key: str, league_info: tuple, start_date: date, end
                                 
                                 if played > 0:
                                     # Lig ortalamasina gore tahmin
-                                    # Galibiyetler = iyi hucum, maglubiyetler = kotu savunma
                                     attack_factor = 1.0 + (wins - losses) / (played * 2)
                                     defense_factor = 1.0 - (wins - losses) / (played * 2)
                                     
-                                    team_stats[team_name] = {
+                                    new_stats = {
                                         'avg_goals': round(1.35 * attack_factor, 2),
                                         'avg_conceded': round(1.2 * defense_factor, 2),
                                         'avg_xg': round(1.35 * attack_factor, 2),
@@ -314,6 +313,11 @@ def fetch_espn_single(league_key: str, league_info: tuple, start_date: date, end
                                         'form_points': min(wins * 3 + draws, 15),
                                         'matches': played
                                     }
+                                    
+                                    # Eger takim yoksa veya yeni kayit daha fazla mac iceriyorsa guncelle
+                                    # (Lig mac sayisi > UEFA mac sayisi, bu yuzden lig verileri oncelikli)
+                                    if team_name not in team_stats or played > team_stats[team_name].get('matches', 0):
+                                        team_stats[team_name] = new_stats
                         except:
                             pass
             except:
