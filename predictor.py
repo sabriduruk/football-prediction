@@ -897,15 +897,17 @@ class MatchPredictor:
         away_xg *= max(0.95, min(1.05, h2h_adj_away))
         
         # =====================================================
-        # GERÇEKÇİ SINIRLAR (Lig ortalamalarına dayalı)
+        # LİMİT YOK - HAM VERİ İLE HESAPLAMA
         # =====================================================
-        # Ortalama maç: 2.5-2.7 toplam gol
-        # Ev sahibi ort: 1.4-1.5 gol
-        # Deplasman ort: 1.0-1.2 gol
-        # Max değerler nadir durumlarda (çok güçlü vs çok zayıf)
+        # Limit koymuyoruz! Veriler ne gösteriyorsa o.
+        # Eğer takım gerçekten çok güçlüyse ve 5.0 xG çıkıyorsa,
+        # bunu 4.0'a düşürmek yanlış. Ham veri daha doğru.
+        # 
+        # Sadece minimum limit (negatif olmasın diye)
+        # =====================================================
         
-        home_xg = max(0.5, min(2.5, home_xg))
-        away_xg = max(0.3, min(2.0, away_xg))
+        home_xg = max(0.3, home_xg)  # Sadece negatif olmasın
+        away_xg = max(0.2, away_xg)   # Sadece negatif olmasın
         
         return round(home_xg, 2), round(away_xg, 2)
     
@@ -1227,49 +1229,21 @@ class MatchPredictor:
             final_odds['away_win'] -= form_adj
             
             # =====================================================
-            # GOL OLASILIKLARI (Gerçek Dünya İstatistiklerine Dayalı)
+            # GOL OLASILIKLARI - HAM VERİ İLE HESAPLAMA
             # =====================================================
-            # Gerçek dünya istatistikleri:
-            # - Ortalama maçta 2.5-2.7 gol
-            # - 4+ gol olan maç oranı: %18-22 (nadir)
-            # - 0-3 gol olan maç oranı: %78-82 (çoğunluk)
+            # Limit yok! Poisson ve Monte Carlo'nun verdiği sonuçları
+            # olduğu gibi kullanıyoruz. Veriler ne gösteriyorsa o.
             # =====================================================
-            total_xg = home_xg + away_xg
             
-            # Poisson ve MC'nin ağırlıklı ortalaması
-            base_under = poisson_odds['under_3_5'] * 0.7 + mc_results['under_3_5_pct'] * 0.3
-            base_over = poisson_odds['over_3_5'] * 0.7 + mc_results['over_3_5_pct'] * 0.3
+            # Poisson ve MC'nin ağırlıklı ortalaması (ham veri)
+            final_odds['under_3_5'] = poisson_odds['under_3_5'] * 0.7 + mc_results['under_3_5_pct'] * 0.3
+            final_odds['over_3_5'] = poisson_odds['over_3_5'] * 0.7 + mc_results['over_3_5_pct'] * 0.3
             
-            # xG bazlı GERÇEKÇİ düzeltme
-            # Maksimum 4+ gol: %32 (çok nadir durumlar için)
-            if total_xg < 2.0:
-                # Çok düşük gol beklentisi
-                final_odds['under_3_5'] = min(92, base_under + 12)
-                final_odds['over_3_5'] = max(8, base_over - 12)
-            elif total_xg < 2.3:
-                # Düşük gol beklentisi
-                final_odds['under_3_5'] = min(88, base_under + 8)
-                final_odds['over_3_5'] = max(12, base_over - 8)
-            elif total_xg < 2.6:
-                # Normal-düşük
-                final_odds['under_3_5'] = min(83, base_under + 3)
-                final_odds['over_3_5'] = max(17, base_over - 3)
-            elif total_xg < 2.9:
-                # Normal maç (ortalama)
-                final_odds['under_3_5'] = max(78, min(82, base_under))
-                final_odds['over_3_5'] = min(22, max(18, base_over))
-            elif total_xg < 3.2:
-                # Normal-yüksek
-                final_odds['under_3_5'] = max(74, base_under - 3)
-                final_odds['over_3_5'] = min(26, base_over + 3)
-            elif total_xg < 3.5:
-                # Yüksek gol beklentisi
-                final_odds['under_3_5'] = max(70, base_under - 6)
-                final_odds['over_3_5'] = min(30, base_over + 6)
-            else:
-                # Çok yüksek gol beklentisi (nadir)
-                final_odds['under_3_5'] = max(68, base_under - 8)
-                final_odds['over_3_5'] = min(32, base_over + 8)  # Max %32
+            # Sadece normalize et (toplam 100% olsun)
+            total_goals_prob = final_odds['under_3_5'] + final_odds['over_3_5']
+            if total_goals_prob > 0:
+                final_odds['under_3_5'] = (final_odds['under_3_5'] / total_goals_prob) * 100
+                final_odds['over_3_5'] = (final_odds['over_3_5'] / total_goals_prob) * 100
         else:
             final_odds = poisson_odds
         
